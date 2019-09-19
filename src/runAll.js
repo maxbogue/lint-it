@@ -8,6 +8,7 @@ const Listr = require('listr')
 const symbols = require('log-symbols')
 
 const generateTasks = require('./generateTasks')
+const getAllFiles = require('./getAllFiles')
 const getStagedFiles = require('./getStagedFiles')
 const git = require('./gitWorkflow')
 const makeCmdTasks = require('./makeCmdTasks')
@@ -23,6 +24,8 @@ const debugLog = require('debug')('lint-staged:run')
 const MAX_ARG_LENGTH =
   (process.platform === 'darwin' && 262144) || (process.platform === 'win32' && 8191) || 131072
 
+const getCommands = ({ commands }, isLintAll) => (!isLintAll ? commands : [...commands, 'git add'])
+
 /**
  * Executes all tasks and either resolves or rejects the promise
  *
@@ -37,7 +40,15 @@ const MAX_ARG_LENGTH =
  * @returns {Promise}
  */
 module.exports = async function runAll(
-  { config, cwd = process.cwd(), debug = false, quiet = false, relative = false, shell = false },
+  {
+    config,
+    isLintAll = false,
+    cwd = process.cwd(),
+    debug = false,
+    quiet = false,
+    relative = false,
+    shell = false
+  },
   logger = console
 ) {
   debugLog('Running all linter scripts')
@@ -50,7 +61,8 @@ module.exports = async function runAll(
 
   debugLog('Resolved git directory to be `%s`', gitDir)
 
-  const files = await getStagedFiles({ cwd: gitDir })
+  const getFiles = isLintAll ? getAllFiles : getStagedFiles
+  const files = await getFiles({ cwd: gitDir })
 
   if (!files) {
     throw new Error('Unable to get staged files!')
@@ -73,7 +85,12 @@ https://github.com/okonet/lint-staged#using-js-functions-to-customize-linter-com
     title: `Running tasks for ${task.pattern}`,
     task: async () =>
       new Listr(
-        await makeCmdTasks({ commands: task.commands, gitDir, shell, pathsToLint: task.fileList }),
+        await makeCmdTasks({
+          commands: getCommands(task, isLintAll),
+          gitDir,
+          shell,
+          pathsToLint: task.fileList
+        }),
         {
           // In sub-tasks we don't want to run concurrently
           // and we want to abort on errors
@@ -102,38 +119,41 @@ https://github.com/okonet/lint-staged#using-js-functions-to-customize-linter-com
     return 'No tasks to run.'
   }
 
-  return new Listr(
-    [
-      {
-        title: 'Stashing changes...',
-        skip: async () => {
-          const hasPSF = await git.hasPartiallyStagedFiles({ cwd: gitDir })
-          if (!hasPSF) {
-            return 'No partially staged files found...'
-          }
-          return false
-        },
-        task: ctx => {
-          ctx.hasStash = true
-          return git.gitStashSave({ cwd: gitDir })
-        }
-      },
-      {
-        title: 'Running tasks...',
-        task: () => new Listr(tasks, { ...listrOptions, concurrent: true, exitOnError: false })
-      },
-      {
-        title: 'Updating stash...',
-        enabled: ctx => ctx.hasStash,
-        skip: ctx => ctx.hasErrors && 'Skipping stash update since some tasks exited with errors',
-        task: () => git.updateStash({ cwd: gitDir })
-      },
-      {
-        title: 'Restoring local changes...',
-        enabled: ctx => ctx.hasStash,
-        task: () => git.gitStashPop({ cwd: gitDir })
+  const saveStash = {
+    title: 'Stashing changes...',
+    skip: async () => {
+      const hasPSF = await git.hasPartiallyStagedFiles({ cwd: gitDir })
+      if (!hasPSF) {
+        return 'No partially staged files found...'
       }
-    ],
+      return false
+    },
+    task: ctx => {
+      ctx.hasStash = true
+      return git.gitStashSave({ cwd: gitDir })
+    }
+  }
+
+  const runTasks = {
+    title: 'Running tasks...',
+    task: () => new Listr(tasks, { ...listrOptions, concurrent: true, exitOnError: false })
+  }
+
+  const updateStash = {
+    title: 'Updating stash...',
+    enabled: ctx => ctx.hasStash,
+    skip: ctx => ctx.hasErrors && 'Skipping stash update since some tasks exited with errors',
+    task: () => git.updateStash({ cwd: gitDir })
+  }
+
+  const popStash = {
+    title: 'Restoring local changes...',
+    enabled: ctx => ctx.hasStash,
+    task: () => git.gitStashPop({ cwd: gitDir })
+  }
+
+  return new Listr(
+    isLintAll ? [runTasks] : [saveStash, runTasks, updateStash, popStash],
     listrOptions
   ).run()
 }

@@ -52,7 +52,14 @@ function loadConfig(configPath) {
  * @returns {Promise<boolean>} Promise of whether the linting passed or failed
  */
 module.exports = function lintStaged(
-  { configPath, relative = false, shell = false, quiet = false, debug = false } = {},
+  {
+    configPath,
+    isLintAll = false,
+    relative = false,
+    shell = false,
+    quiet = false,
+    debug = false
+  } = {},
   logger = console
 ) {
   debugLog('Loading config using `cosmiconfig`')
@@ -75,7 +82,7 @@ module.exports = function lintStaged(
         debugLog('lint-staged config:\n%O', config)
       }
 
-      return runAll({ config, relative, shell, quiet, debug }, logger)
+      return runAll({ config, isLintAll, relative, shell, quiet, debug }, logger)
         .then(() => {
           debugLog('tasks were executed successfully!')
           return Promise.resolve(true)
