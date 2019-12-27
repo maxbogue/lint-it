@@ -97,7 +97,7 @@ Options:
 Starting with v3.1 you can now use different ways of configuring it:
 
 - `lint-staged` object in your `package.json`
-- `.lintstagedrc` file in JSON or YML format
+- `.lintitrc` file in JSON or YML format
 - `lint-staged.config.js` file in JS format
 - Pass a configuration file using the `--config` or `-c` flag
 
@@ -115,7 +115,7 @@ Configuration should be an object where each value is a command to run and its k
 }
 ```
 
-#### `.lintstagedrc` example
+#### `.lintitrc` example
 
 ```json
 {
@@ -165,7 +165,7 @@ Supported are any executables installed locally or globally via `npm` as well as
 
 > Using globally installed scripts is discouraged, since lint-staged may not work for someone who doesn’t have it installed.
 
-`lint-staged` uses [execa](https://github.com/sindresorhus/execa#preferlocal) to locate locally installed scripts. So in your `.lintstagedrc` you can write:
+`lint-staged` uses [execa](https://github.com/sindresorhus/execa#preferlocal) to locate locally installed scripts. So in your `.lintitrc` you can write:
 
 ```json
 {
@@ -188,7 +188,7 @@ type LinterFn = (filenames: string[]) => string | string[]
 ### Example: Wrap filenames in single quotes and run once per file
 
 ```js
-// .lintstagedrc.js
+// .lintitrc.js
 module.exports = {
   '**/*.js?(x)': filenames => filenames.map(filename => `prettier --write '${filename}'`)
 }
@@ -206,7 +206,7 @@ module.exports = {
 ### Example: Run eslint on entire repo if more than 10 staged files
 
 ```js
-// .lintstagedrc.js
+// .lintitrc.js
 module.exports = {
   '**/*.js?(x)': filenames => (filenames.length > 10 ? 'eslint .' : `eslint ${filenames.join(' ')}`)
 }

@@ -24,11 +24,11 @@ function loadConfig(configPath) {
   const explorer = cosmiconfig('lint-it', {
     searchPlaces: [
       'package.json',
-      '.lintstagedrc',
-      '.lintstagedrc.json',
-      '.lintstagedrc.yaml',
-      '.lintstagedrc.yml',
-      '.lintstagedrc.js',
+      '.lintitrc',
+      '.lintitrc.json',
+      '.lintitrc.yaml',
+      '.lintitrc.yml',
+      '.lintitrc.js',
       'lint-it.config.js'
     ]
   })
