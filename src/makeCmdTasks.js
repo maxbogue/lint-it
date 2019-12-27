@@ -2,7 +2,7 @@
 
 const resolveTaskFn = require('./resolveTaskFn')
 
-const debug = require('debug')('lint-staged:make-cmd-tasks')
+const debug = require('debug')('lint-it:make-cmd-tasks')
 
 /**
  * Creates and returns an array of listr tasks which map to the given commands.

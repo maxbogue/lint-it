@@ -25,7 +25,7 @@ const cmdline = require('commander')
 const debugLib = require('debug')
 const lintStaged = require('../src')
 
-const debug = debugLib('lint-staged:bin')
+const debug = debugLib('lint-it:bin')
 let mode;
 
 cmdline
@@ -35,7 +35,7 @@ cmdline
   .option('-a, --all', 'Lint all files')
   .option('-r, --relative', 'Pass relative filepaths to tasks')
   .option('-x, --shell', 'Skip parsing of tasks for better shell support')
-  .option('-q, --quiet', 'Disable lint-staged’s own console output')
+  .option('-q, --quiet', 'Disable lint-it’s own console output')
   .option('-d, --debug', 'Enable debug mode')
   .option(
     '-p, --concurrent <parallel tasks>',
@@ -48,10 +48,10 @@ cmdline
   .parse(process.argv)
 
 if (cmdline.debug) {
-  debugLib.enable('lint-staged*')
+  debugLib.enable('lint-it*')
 }
 
-debug('Running `lint-staged@%s`', pkg.version)
+debug('Running `lint-it@%s`', pkg.version)
 
 lintStaged({
   configPath: cmdline.config,

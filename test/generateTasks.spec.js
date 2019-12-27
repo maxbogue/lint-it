@@ -29,7 +29,7 @@ const files = [
 
 // Mocks get hoisted
 jest.mock('../src/resolveGitDir.js')
-const gitDir = path.join(os.tmpdir(), 'tmp-lint-staged')
+const gitDir = path.join(os.tmpdir(), 'tmp-lint-it')
 resolveGitDir.mockResolvedValue(gitDir)
 const cwd = gitDir
 

@@ -6,7 +6,7 @@ const execa = require('execa')
 const symbols = require('log-symbols')
 const stringArgv = require('string-argv')
 
-const debug = require('debug')('lint-staged:task')
+const debug = require('debug')('lint-it:task')
 
 /**
  * Execute the given linter cmd using execa and

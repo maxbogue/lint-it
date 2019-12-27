@@ -36,7 +36,7 @@ const appendFile = async (filename, content, dir = cwd) =>
 // Wrap execGit to always pass `gitOps`
 const execGit = async args => execGitBase(args, { cwd })
 
-// Execute runAll before git commit to emulate lint-staged
+// Execute runAll before git commit to emulate lint-it
 const gitCommit = async options => {
   try {
     await runAll({ ...options, cwd, quiet: true })
@@ -76,7 +76,7 @@ describe('runAll', () => {
     await appendFile('test.js', testJsFilePretty)
     await execGit(['add', 'test.js'])
 
-    // Run lint-staged with `prettier --list-different` and commit pretty file
+    // Run lint-it with `prettier --list-different` and commit pretty file
     const success = await gitCommit({ config: { '*.js': 'prettier --list-different' } })
     expect(success).toEqual(true)
 
@@ -169,7 +169,7 @@ describe('runAll', () => {
     await appendFile('test.js', testJsFileUgly)
     await execGit(['add', 'test.js'])
 
-    // Run lint-staged with `prettier --write` and commit pretty file
+    // Run lint-it with `prettier --write` and commit pretty file
     const success = await gitCommit({ config: { '*.js': ['prettier --write', 'git add'] } })
     expect(success).toEqual(true)
 
@@ -188,7 +188,7 @@ describe('runAll', () => {
     await execGit(['add', 'test.js'])
     const status = await execGit(['status'])
 
-    // Run lint-staged with `prettier --list-different` to break the linter
+    // Run lint-it with `prettier --list-different` to break the linter
     const success = await gitCommit({ config: { '*.js': 'prettier --list-different' } })
     expect(success).toEqual(false)
 
@@ -208,7 +208,7 @@ describe('runAll', () => {
     await execGit(['add', 'test.js'])
     const status = await execGit(['status'])
 
-    // Run lint-staged with `prettier --write` to break the linter
+    // Run lint-it with `prettier --write` to break the linter
     const success = await gitCommit({ config: { '*.js': ['prettier --write', 'git add'] } })
     expect(success).toEqual(false)
 
@@ -231,7 +231,7 @@ describe('runAll', () => {
     const appended = '\nconsole.log("test");\n'
     await appendFile('test.js', appended)
 
-    // Run lint-staged with `prettier --list-different` and commit pretty file
+    // Run lint-it with `prettier --list-different` and commit pretty file
     const success = await gitCommit({ config: { '*.js': 'prettier --list-different' } })
     expect(success).toEqual(true)
 
@@ -262,7 +262,7 @@ describe('runAll', () => {
     const appended = '\n\nconsole.log("test");\n'
     await appendFile('test.js', appended)
 
-    // Run lint-staged with `prettier --write` and commit pretty file
+    // Run lint-it with `prettier --write` and commit pretty file
     const success = await gitCommit({ config: { '*.js': ['prettier --write', 'git add'] } })
     expect(success).toEqual(true)
 
@@ -296,7 +296,7 @@ describe('runAll', () => {
     await appendFile('test.js', appended)
     const status = await execGit(['status'])
 
-    // Run lint-staged with `prettier --list-different` to break the linter
+    // Run lint-it with `prettier --list-different` to break the linter
     const success = await gitCommit({ config: { '*.js': 'prettier --list-different' } })
     expect(success).toEqual(false)
 
@@ -320,7 +320,7 @@ describe('runAll', () => {
     await appendFile('test.js', appended)
     const status = await execGit(['status'])
 
-    // Run lint-staged with `prettier --write` to break the linter
+    // Run lint-it with `prettier --write` to break the linter
     const success = await gitCommit({ config: { '*.js': ['prettier --write', 'git add'] } })
     expect(success).toEqual(false)
 
@@ -343,7 +343,7 @@ describe('runAll', () => {
     await fs.remove(path.join(cwd, 'test.js'))
     await appendFile('test.js', testJsFilePretty)
 
-    // Run lint-staged with `prettier --write` and commit pretty file
+    // Run lint-it with `prettier --write` and commit pretty file
     const success = await gitCommit({ config: { '*.js': ['prettier --write', 'git add'] } })
     expect(success).toEqual(true)
 
@@ -379,7 +379,7 @@ nothing to commit, working tree clean"
     expect(await readFile('test.js')).toEqual(testJsFileUgly + appended)
     const diff = await execGit(['diff'])
 
-    // Run lint-staged with `prettier --write` and commit pretty file
+    // Run lint-it with `prettier --write` and commit pretty file
     // The task creates a git lock file to simulate failure
     const success = await gitCommit({
       config: {

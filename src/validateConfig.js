@@ -5,7 +5,7 @@
 const chalk = require('chalk')
 const format = require('stringify-object')
 
-const debug = require('debug')('lint-staged:cfg')
+const debug = require('debug')('lint-it:cfg')
 
 const TEST_DEPRECATED_KEYS = new Map([
   ['concurrent', key => typeof key === 'boolean'],
@@ -22,7 +22,7 @@ const formatError = helpMsg => `● Validation Error:
 
   ${helpMsg}
 
-Please refer to https://github.com/okonet/lint-staged#configuration for more information...`
+Please refer to https://github.com/maxbogue/lint-it#configuration for more information...`
 
 const createError = (opt, helpMsg, value) =>
   formatError(`Invalid value for '${chalk.bold(opt)}'.
@@ -59,7 +59,7 @@ module.exports = function validateConfig(config) {
           errors.push(
             createError(
               pattern,
-              'Advanced configuration has been deprecated. For more info, please visit: https://github.com/okonet/lint-staged',
+              'Advanced configuration has been deprecated. For more info, please visit: https://github.com/maxbogue/lint-it',
               task
             )
           )

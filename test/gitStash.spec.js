@@ -490,7 +490,7 @@ MM test.js"
 
       // Expect stashed files to be back
       expect(await gitStatus()).toMatchInlineSnapshot(`"MM test.js"`)
-      // and all lint-staged modifications to be gone
+      // and all lint-it modifications to be gone
       expect(await gitflow.execGit(['diff', '--cached'], gitOpts)).toEqual(indexAfterEslint)
       expect(await readFile('test.js')).toEqual(`module.exports = {
   test: 'edited',

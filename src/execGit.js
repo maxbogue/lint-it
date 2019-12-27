@@ -1,6 +1,6 @@
 'use strict'
 
-const debug = require('debug')('lint-staged:git')
+const debug = require('debug')('lint-it:git')
 const execa = require('execa')
 
 module.exports = async function execGit(cmd, options = {}) {

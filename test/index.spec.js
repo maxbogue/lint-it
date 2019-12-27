@@ -122,8 +122,8 @@ describe('lintStaged', () => {
 
   it('should load an npm config package when specified', async () => {
     expect.assertions(1)
-    jest.mock('my-lint-staged-config')
-    await lintStaged({ configPath: 'my-lint-staged-config', quiet: true, debug: true }, logger)
+    jest.mock('my-lint-it-config')
+    await lintStaged({ configPath: 'my-lint-it-config', quiet: true, debug: true }, logger)
     expect(logger.printHistory()).toMatchSnapshot()
   })
 

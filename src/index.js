@@ -8,7 +8,7 @@ const runAll = require('./runAll')
 const validateConfig = require('./validateConfig')
 const modes = require('./modes')
 
-const debugLog = require('debug')('lint-staged')
+const debugLog = require('debug')('lint-it')
 
 const errConfigNotFound = new Error('Config could not be found')
 
@@ -21,7 +21,7 @@ function resolveConfig(configPath) {
 }
 
 function loadConfig(configPath) {
-  const explorer = cosmiconfig('lint-staged', {
+  const explorer = cosmiconfig('lint-it', {
     searchPlaces: [
       'package.json',
       '.lintstagedrc',
@@ -29,7 +29,7 @@ function loadConfig(configPath) {
       '.lintstagedrc.yaml',
       '.lintstagedrc.yml',
       '.lintstagedrc.js',
-      'lint-staged.config.js'
+      'lint-it.config.js'
     ]
   })
 
@@ -40,14 +40,14 @@ function loadConfig(configPath) {
  * @typedef {(...any) => void} LogFunction
  * @typedef {{ error: LogFunction, log: LogFunction, warn: LogFunction }} Logger
  *
- * Root lint-staged function that is called from `bin/lint-staged`.
+ * Root lint-it function that is called from `bin/lint-it`.
  *
  * @param {object} options
  * @param {string} [options.configPath] - Path to configuration file
  * @param {object}  [options.config] - Object with configuration for programmatic API
  * @param {boolean} [options.relative] - Pass relative filepaths to tasks
  * @param {boolean} [options.shell] - Skip parsing of tasks for better shell support
- * @param {boolean} [options.quiet] - Disable lint-staged’s own console output
+ * @param {boolean} [options.quiet] - Disable lint-it’s own console output
  * @param {boolean} [options.debug] - Enable debug mode
  * @param {boolean | number} [options.concurrent] - The number of tasks to run concurrently, or false to run tasks serially
  * @param {Logger} [logger]
@@ -84,12 +84,12 @@ module.exports = function lintStaged(
       const config = validateConfig(result.config)
       if (debug) {
         // Log using logger to be able to test through `consolemock`.
-        logger.log('Running lint-staged with the following config:')
+        logger.log('Running lint-it with the following config:')
         logger.log(stringifyObject(config, { indent: '  ' }))
       } else {
-        // We might not be in debug mode but `DEBUG=lint-staged*` could have
+        // We might not be in debug mode but `DEBUG=lint-it*` could have
         // been set.
-        debugLog('lint-staged config:\n%O', config)
+        debugLog('lint-it config:\n%O', config)
       }
 
       return runAll({ config, mode, relative, shell, quiet, debug, concurrent }, logger)
@@ -108,7 +108,7 @@ module.exports = function lintStaged(
       } else {
         // It was probably a parsing error
         logger.error(dedent`
-          Could not parse lint-staged config.
+          Could not parse lint-it config.
 
           ${err}
         `)
@@ -117,7 +117,7 @@ module.exports = function lintStaged(
       // Print helpful message for all errors
       logger.error(dedent`
         Please make sure you have created it correctly.
-        See https://github.com/okonet/lint-staged#configuration.
+        See https://github.com/maxbogue/lint-it#configuration.
       `)
 
       return Promise.reject(err)

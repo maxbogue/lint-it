@@ -15,7 +15,7 @@ exports[`validateConfig should throw and should print validation errors for inva
  
   Configured value is: false
 
-Please refer to https://github.com/okonet/lint-staged#configuration for more information..."
+Please refer to https://github.com/maxbogue/lint-it#configuration for more information..."
 `;
 
 exports[`validateConfig should throw and should print validation errors for invalid config 1 1`] = `"Configuration should be an object!"`;
@@ -25,11 +25,11 @@ exports[`validateConfig should throw when detecting deprecated advanced configur
 
   Invalid value for 'chunkSize'.
 
-  Advanced configuration has been deprecated. For more info, please visit: https://github.com/okonet/lint-staged.
+  Advanced configuration has been deprecated. For more info, please visit: https://github.com/maxbogue/lint-it.
  
   Configured value is: 10
 
-Please refer to https://github.com/okonet/lint-staged#configuration for more information...
+Please refer to https://github.com/maxbogue/lint-it#configuration for more information...
 ● Validation Error:
 
   Invalid value for 'chunkSize'.
@@ -38,16 +38,16 @@ Please refer to https://github.com/okonet/lint-staged#configuration for more inf
  
   Configured value is: 10
 
-Please refer to https://github.com/okonet/lint-staged#configuration for more information...
+Please refer to https://github.com/maxbogue/lint-it#configuration for more information...
 ● Validation Error:
 
   Invalid value for 'concurrent'.
 
-  Advanced configuration has been deprecated. For more info, please visit: https://github.com/okonet/lint-staged.
+  Advanced configuration has been deprecated. For more info, please visit: https://github.com/maxbogue/lint-it.
  
   Configured value is: false
 
-Please refer to https://github.com/okonet/lint-staged#configuration for more information...
+Please refer to https://github.com/maxbogue/lint-it#configuration for more information...
 ● Validation Error:
 
   Invalid value for 'concurrent'.
@@ -56,16 +56,16 @@ Please refer to https://github.com/okonet/lint-staged#configuration for more inf
  
   Configured value is: false
 
-Please refer to https://github.com/okonet/lint-staged#configuration for more information...
+Please refer to https://github.com/maxbogue/lint-it#configuration for more information...
 ● Validation Error:
 
   Invalid value for 'globOptions'.
 
-  Advanced configuration has been deprecated. For more info, please visit: https://github.com/okonet/lint-staged.
+  Advanced configuration has been deprecated. For more info, please visit: https://github.com/maxbogue/lint-it.
  
   Configured value is: {matchBase: false}
 
-Please refer to https://github.com/okonet/lint-staged#configuration for more information...
+Please refer to https://github.com/maxbogue/lint-it#configuration for more information...
 ● Validation Error:
 
   Invalid value for 'globOptions'.
@@ -74,25 +74,25 @@ Please refer to https://github.com/okonet/lint-staged#configuration for more inf
  
   Configured value is: {matchBase: false}
 
-Please refer to https://github.com/okonet/lint-staged#configuration for more information...
+Please refer to https://github.com/maxbogue/lint-it#configuration for more information...
 ● Validation Error:
 
   Invalid value for 'ignore'.
 
-  Advanced configuration has been deprecated. For more info, please visit: https://github.com/okonet/lint-staged.
+  Advanced configuration has been deprecated. For more info, please visit: https://github.com/maxbogue/lint-it.
  
   Configured value is: ['test.js']
 
-Please refer to https://github.com/okonet/lint-staged#configuration for more information...
+Please refer to https://github.com/maxbogue/lint-it#configuration for more information...
 ● Validation Error:
 
   Invalid value for 'linters'.
 
-  Advanced configuration has been deprecated. For more info, please visit: https://github.com/okonet/lint-staged.
+  Advanced configuration has been deprecated. For more info, please visit: https://github.com/maxbogue/lint-it.
  
   Configured value is: {'*.js': ['eslint']}
 
-Please refer to https://github.com/okonet/lint-staged#configuration for more information...
+Please refer to https://github.com/maxbogue/lint-it#configuration for more information...
 ● Validation Error:
 
   Invalid value for 'linters'.
@@ -101,16 +101,16 @@ Please refer to https://github.com/okonet/lint-staged#configuration for more inf
  
   Configured value is: {'*.js': ['eslint']}
 
-Please refer to https://github.com/okonet/lint-staged#configuration for more information...
+Please refer to https://github.com/maxbogue/lint-it#configuration for more information...
 ● Validation Error:
 
   Invalid value for 'relative'.
 
-  Advanced configuration has been deprecated. For more info, please visit: https://github.com/okonet/lint-staged.
+  Advanced configuration has been deprecated. For more info, please visit: https://github.com/maxbogue/lint-it.
  
   Configured value is: true
 
-Please refer to https://github.com/okonet/lint-staged#configuration for more information...
+Please refer to https://github.com/maxbogue/lint-it#configuration for more information...
 ● Validation Error:
 
   Invalid value for 'relative'.
@@ -119,25 +119,25 @@ Please refer to https://github.com/okonet/lint-staged#configuration for more inf
  
   Configured value is: true
 
-Please refer to https://github.com/okonet/lint-staged#configuration for more information...
+Please refer to https://github.com/maxbogue/lint-it#configuration for more information...
 ● Validation Error:
 
   Invalid value for 'renderer'.
 
-  Advanced configuration has been deprecated. For more info, please visit: https://github.com/okonet/lint-staged.
+  Advanced configuration has been deprecated. For more info, please visit: https://github.com/maxbogue/lint-it.
  
   Configured value is: 'silent'
 
-Please refer to https://github.com/okonet/lint-staged#configuration for more information...
+Please refer to https://github.com/maxbogue/lint-it#configuration for more information...
 ● Validation Error:
 
   Invalid value for 'subTaskConcurrency'.
 
-  Advanced configuration has been deprecated. For more info, please visit: https://github.com/okonet/lint-staged.
+  Advanced configuration has been deprecated. For more info, please visit: https://github.com/maxbogue/lint-it.
  
   Configured value is: 10
 
-Please refer to https://github.com/okonet/lint-staged#configuration for more information...
+Please refer to https://github.com/maxbogue/lint-it#configuration for more information...
 ● Validation Error:
 
   Invalid value for 'subTaskConcurrency'.
@@ -146,7 +146,7 @@ Please refer to https://github.com/okonet/lint-staged#configuration for more inf
  
   Configured value is: 10
 
-Please refer to https://github.com/okonet/lint-staged#configuration for more information..."
+Please refer to https://github.com/maxbogue/lint-it#configuration for more information..."
 `;
 
 exports[`validateConfig should throw when detecting deprecated advanced configuration 2`] = `""`;
@@ -160,5 +160,5 @@ exports[`validateConfig should throw when function task returns incorrect values
  
   Configured value is: [['eslint --fix [filename]', 'git add [filename]']]
 
-Please refer to https://github.com/okonet/lint-staged#configuration for more information..."
+Please refer to https://github.com/maxbogue/lint-it#configuration for more information..."
 `;

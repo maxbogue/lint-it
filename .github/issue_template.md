@@ -20,7 +20,7 @@ Run `lint-staged` in debug mode using the command line flag `--debug`. You can
 either modify your pre-commit script/command to include the flag or invoke
 `lint-staged` manually(`./node_modules/.bin/lint-staged --debug`). Read more
 about debug mode here -
-https://github.com/okonet/lint-staged#command-line-flags.
+https://github.com/maxbogue/lint-it#command-line-flags.
 
 NOTE: This requires `lint-staged` version >= `6.0.0`.
 -->

@@ -1,7 +1,7 @@
 'use strict'
 
 const del = require('del')
-const debug = require('debug')('lint-staged:git')
+const debug = require('debug')('lint-it:git')
 
 const execGit = require('./execGit')
 

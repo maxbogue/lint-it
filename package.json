@@ -1,17 +1,15 @@
 {
-  "name": "lint-staged",
+  "name": "lint-it",
   "version": "0.0.0-development",
   "description": "Lint files staged by git",
   "license": "MIT",
-  "repository": "https://github.com/okonet/lint-staged",
-  "author": "Andrey Okonetchnikov <andrey@okonet.ru>",
-  "maintainers": [
-    "Lufty Wiranda <lufty.wiranda@gmail.com>",
-    "Suhas Karanth <sudo.suhas@gmail.com>",
-    "Iiro Jäppinen <iiro@jappinen.fi> (https://iiro.fi)"
+  "repository": "https://github.com/maxbogue/lint-it",
+  "authors": [
+    "Andrey Okonetchnikov <andrey@okonet.ru>",
+    "Max Bogue <max@maxbogue.com>"
   ],
   "main": "./src/index.js",
-  "bin": "./bin/lint-staged",
+  "bin": "./bin/lint-it",
   "files": [
     "src",
     "bin"
@@ -27,7 +25,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "./bin/lint-staged staged"
+      "pre-commit": "./bin/lint-it staged"
     }
   },
   "dependencies": {

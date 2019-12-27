@@ -159,7 +159,7 @@ describe('runAll', () => {
     await expect(runAll({})).rejects.toThrowErrorMatchingSnapshot()
   })
 
-  it('should skip stashing changes if no lint-staged files are changed', async () => {
+  it('should skip stashing changes if no lint-it files are changed', async () => {
     expect.assertions(4)
     hasPartiallyStagedFiles.mockImplementationOnce(() => Promise.resolve(true))
     getStagedFiles.mockImplementationOnce(async () => ['sample.java'])
