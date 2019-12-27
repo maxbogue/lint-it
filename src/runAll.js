@@ -8,11 +8,10 @@ const Listr = require('listr')
 const symbols = require('log-symbols')
 
 const generateTasks = require('./generateTasks')
-const getAllFiles = require('./getAllFiles')
-const getStagedFiles = require('./getStagedFiles')
 const git = require('./gitWorkflow')
 const makeCmdTasks = require('./makeCmdTasks')
 const resolveGitDir = require('./resolveGitDir')
+const modes = require('./modes')
 
 const debugLog = require('debug')('lint-staged:run')
 
@@ -23,8 +22,6 @@ const debugLog = require('debug')('lint-staged:run')
  */
 const MAX_ARG_LENGTH =
   (process.platform === 'darwin' && 262144) || (process.platform === 'win32' && 8191) || 131072
-
-const getCommands = ({ commands }, isLintAll) => (!isLintAll ? commands : [...commands, 'git add'])
 
 /**
  * Executes all tasks and either resolves or rejects the promise
@@ -43,7 +40,7 @@ const getCommands = ({ commands }, isLintAll) => (!isLintAll ? commands : [...co
 module.exports = async function runAll(
   {
     config,
-    isLintAll = false,
+    mode,
     cwd = process.cwd(),
     debug = false,
     quiet = false,
@@ -62,8 +59,7 @@ module.exports = async function runAll(
 
   debugLog('Resolved git directory to be `%s`', gitDir)
 
-  const getFiles = isLintAll ? getAllFiles : getStagedFiles
-  const files = await getFiles({ cwd: gitDir })
+  const files = await modes.getFiles(mode, { cwd: gitDir })
 
   if (!files) {
     throw new Error('Unable to get staged files!')
@@ -82,12 +78,14 @@ https://github.com/okonet/lint-staged#using-js-functions-to-customize-linter-com
     )
   }
 
+  const maybeGitAdd = commands => (modes.doGitAdd(mode) ? [...commands, 'git add'] : commands)
+
   const tasks = generateTasks({ config, cwd, gitDir, files, relative }).map(task => ({
     title: `Running tasks for ${task.pattern}`,
     task: async () =>
       new Listr(
         await makeCmdTasks({
-          commands: getCommands(task, isLintAll),
+          commands: maybeGitAdd(task.commands),
           files: task.fileList,
           gitDir,
           shell
@@ -154,7 +152,7 @@ https://github.com/okonet/lint-staged#using-js-functions-to-customize-linter-com
   }
 
   return new Listr(
-    isLintAll ? [runTasks] : [saveStash, runTasks, updateStash, popStash],
+    mode !== modes.STAGED ? [runTasks] : [saveStash, runTasks, updateStash, popStash],
     listrOptions
   ).run()
 }

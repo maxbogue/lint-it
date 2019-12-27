@@ -26,9 +26,11 @@ const debugLib = require('debug')
 const lintStaged = require('../src')
 
 const debug = debugLib('lint-staged:bin')
+let mode;
 
 cmdline
   .version(pkg.version)
+  .arguments('[mode]')
   .option('-c, --config [path]', 'Path to configuration file')
   .option('-a, --all', 'Lint all files')
   .option('-r, --relative', 'Pass relative filepaths to tasks')
@@ -40,6 +42,9 @@ cmdline
     'The number of tasks to run concurrently, or false to run tasks serially',
     true
   )
+  .action(function(m) {
+    mode = m;
+  })
   .parse(process.argv)
 
 if (cmdline.debug) {
@@ -50,7 +55,7 @@ debug('Running `lint-staged@%s`', pkg.version)
 
 lintStaged({
   configPath: cmdline.config,
-  isLintAll: !!cmdline.all,
+  mode,
   relative: !!cmdline.relative,
   shell: !!cmdline.shell,
   quiet: !!cmdline.quiet,

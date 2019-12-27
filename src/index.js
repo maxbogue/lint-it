@@ -6,6 +6,7 @@ const stringifyObject = require('stringify-object')
 const printErrors = require('./printErrors')
 const runAll = require('./runAll')
 const validateConfig = require('./validateConfig')
+const modes = require('./modes')
 
 const debugLog = require('debug')('lint-staged')
 
@@ -57,7 +58,7 @@ module.exports = function lintStaged(
   {
     configPath,
     config,
-    isLintAll = false,
+    mode = modes.MODIFIED,
     relative = false,
     shell = false,
     quiet = false,
@@ -67,6 +68,11 @@ module.exports = function lintStaged(
   logger = console
 ) {
   debugLog('Loading config using `cosmiconfig`')
+
+  if (!modes.isValid(mode)) {
+    logger.error(`Invalid mode: ${mode}`)
+    return Promise.reject()
+  }
 
   return (config ? Promise.resolve({ config, filepath: '(input)' }) : loadConfig(configPath))
     .then(result => {
@@ -86,7 +92,7 @@ module.exports = function lintStaged(
         debugLog('lint-staged config:\n%O', config)
       }
 
-      return runAll({ config, isLintAll, relative, shell, quiet, debug, concurrent }, logger)
+      return runAll({ config, mode, relative, shell, quiet, debug, concurrent }, logger)
         .then(() => {
           debugLog('tasks were executed successfully!')
           return Promise.resolve(true)
