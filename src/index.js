@@ -43,10 +43,12 @@ function loadConfig(configPath) {
  *
  * @param {object} options
  * @param {string} [options.configPath] - Path to configuration file
+ * @param {object}  [options.config] - Object with configuration for programmatic API
  * @param {boolean} [options.relative] - Pass relative filepaths to tasks
  * @param {boolean} [options.shell] - Skip parsing of tasks for better shell support
  * @param {boolean} [options.quiet] - Disable lint-staged’s own console output
  * @param {boolean} [options.debug] - Enable debug mode
+ * @param {boolean | number} [options.concurrent] - The number of tasks to run concurrently, or false to run tasks serially
  * @param {Logger} [logger]
  *
  * @returns {Promise<boolean>} Promise of whether the linting passed or failed
@@ -54,17 +56,19 @@ function loadConfig(configPath) {
 module.exports = function lintStaged(
   {
     configPath,
+    config,
     isLintAll = false,
     relative = false,
     shell = false,
     quiet = false,
-    debug = false
+    debug = false,
+    concurrent = true
   } = {},
   logger = console
 ) {
   debugLog('Loading config using `cosmiconfig`')
 
-  return loadConfig(configPath)
+  return (config ? Promise.resolve({ config, filepath: '(input)' }) : loadConfig(configPath))
     .then(result => {
       if (result == null) throw errConfigNotFound
 
@@ -82,7 +86,7 @@ module.exports = function lintStaged(
         debugLog('lint-staged config:\n%O', config)
       }
 
-      return runAll({ config, isLintAll, relative, shell, quiet, debug }, logger)
+      return runAll({ config, isLintAll, relative, shell, quiet, debug, concurrent }, logger)
         .then(() => {
           debugLog('tasks were executed successfully!')
           return Promise.resolve(true)

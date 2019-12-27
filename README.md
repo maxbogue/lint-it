@@ -2,6 +2,30 @@
 
 Run linters against staged git files and don't let :poop: slip into your code base!
 
+---
+
+## 🚧 Help test `lint-staged@beta`!
+
+Version 10 of `lint-staged` is coming with changes that help it run faster on large git repositories and prevent loss of data during errors. Please help test the `beta` version and report any inconsistencies in our [GitHub Issues](https://github.com/okonet/lint-staged/issues):
+
+**Using npm**
+
+    npm install --save-dev lint-staged@beta
+
+**Using yarn**
+
+    yarn add -D lint-staged@beta
+
+### Notable changes
+
+- A git stash is created before running any tasks, so in case of errors any lost changes can be restored easily (and automatically unless lint-staged itself crashes)
+- Instead of write-tree/read-tree, `lint-staged@beta` uses git stashes to hide unstaged changes while running tasks against staged files
+  - This results in a performance increase of up to 45x on very large repositories
+- The behaviour of committing modifications during tasks (eg. `prettier --write && git add`) is different. The current version creates a diff of these modifications, and applies it against the original state, silently ignoring any errors. The `beta` version leaves modifications of staged files as-is, and then restores all hidden unstaged changes as patch. If applying the patch fails due to a merge conflict (because tasks have modified the same lines), a 3-way merge will be retried. If this also fails, the entire commit will fail and the original state will be restored.
+  - **TL;DR** the `beta` version will never skip committing any changes by tasks (due to a merge conflict), but might fail in very complex situations where unstaged changes cannot be restored cleanly. If this happens to you, we are very interested in a repeatable test scenario.
+
+---
+
 [![asciicast](https://asciinema.org/a/199934.svg)](https://asciinema.org/a/199934)
 
 ## Why
@@ -46,13 +70,14 @@ $ npx lint-staged --help
 Usage: lint-staged [options]
 
 Options:
-  -V, --version        output the version number
-  -c, --config [path]  Path to configuration file
-  -r, --relative       Pass relative filepaths to tasks
-  -x, --shell          Skip parsing of tasks for better shell support
-  -q, --quiet          Disable lint-staged’s own console output
-  -d, --debug          Enable debug mode
-  -h, --help           output usage information
+  -V, --version                     output the version number
+  -c, --config [path]               Path to configuration file
+  -r, --relative                    Pass relative filepaths to tasks
+  -x, --shell                       Skip parsing of tasks for better shell support
+  -q, --quiet                       Disable lint-staged’s own console output
+  -d, --debug                       Enable debug mode
+  -p, --concurrent [parallel tasks] The number of tasks to run concurrently, or false to run tasks sequentially
+  -h, --help                        output usage information
 ```
 
 - **`--config [path]`**: This can be used to manually specify the `lint-staged` config file location. However, if the specified file cannot be found, it will error out instead of performing the usual search. You may pass a npm package name for configuration also.
@@ -62,6 +87,10 @@ Options:
 - **`--debug`**: Enabling the debug mode does the following:
   - `lint-staged` uses the [debug](https://github.com/visionmedia/debug) module internally to log information about staged files, commands being executed, location of binaries, etc. Debug logs, which are automatically enabled by passing the flag, can also be enabled by setting the environment variable `$DEBUG` to `lint-staged*`.
   - Use the [`verbose` renderer](https://github.com/SamVerschueren/listr-verbose-renderer) for `listr`.
+- **`--concurrent [number | (true/false)]`**: Controls the concurrency of tasks being run by lint-staged. **NOTE**: This does NOT affect the concurrency of subtasks (they will always be run sequentially). Possible values are:
+  - `false`: Run all tasks serially
+  - `true` (default) : _Infinite_ concurrency. Runs as many tasks in parallel as possible.
+  - `{number}`: Run the specified number of tasks in parallel, where `1` is equivalent to `false`.
 
 ## Configuration
 
@@ -108,7 +137,7 @@ Linter commands work on a subset of all staged files, defined by a _glob pattern
   - **`"*.js"`** will match all JS files, like `/test.js` and `/foo/bar/test.js`
   - **`"!(*test).js"`**. will match all JS files, except those ending in `test.js`, so `foo.js` but not `foo.test.js`
 - If the glob pattern does contain a slash (`/`), it will match for paths as well:
-  - **`"/*.js"`** will match all JS files in the git repo root, so `/test.js` but not `/foo/bar/test.js`
+  - **`"./*.js"`** will match all JS files in the git repo root, so `/test.js` but not `/foo/bar/test.js`
   - **`"foo/**/\*.js"`** will match all JS files inside the`/foo`directory, so`/foo/bar/test.js`but not`/test.js`
 
 When matching, `lint-staged` will do the following
@@ -191,7 +220,7 @@ const micromatch = require('micromatch')
 module.exports = {
   '*': allFiles => {
     const match = micromatch(allFiles, ['*.js', '*.ts'])
-    return match.map(file => `eslint ${file}`)
+    return `eslint ${match.join(' ')}`
   }
 }
 ```
@@ -207,7 +236,7 @@ module.exports = {
   '*.js': files => {
     // from `files` filter those _NOT_ matching `*test.js`
     const match = micromatch.not(files, '*test.js')
-    return match.map(file => `eslint ${file}`)
+    return `eslint ${match.join(' ')}`
   }
 }
 ```
@@ -394,6 +423,19 @@ Parameters to `lintStaged` are equivalent to their CLI counterparts:
 ```js
 const success = await lintStaged({
   configPath: './path/to/configuration/file',
+  shell: false,
+  quiet: false,
+  debug: false
+})
+```
+
+You can also pass config directly with `config` option:
+
+```js
+const success = await lintStaged({
+  config: {
+    '*.js': 'eslint --fix'
+  },
   shell: false,
   quiet: false,
   debug: false

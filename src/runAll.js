@@ -36,6 +36,7 @@ const getCommands = ({ commands }, isLintAll) => (!isLintAll ? commands : [...co
  * @param {boolean} [options.shell] - Skip parsing of tasks for better shell support
  * @param {boolean} [options.quiet] - Disable lint-staged’s own console output
  * @param {boolean} [options.debug] - Enable debug mode
+ * @param {boolean | number} [options.concurrent] - The number of tasks to run concurrently, or false to run tasks serially
  * @param {Logger} logger
  * @returns {Promise}
  */
@@ -47,12 +48,12 @@ module.exports = async function runAll(
     debug = false,
     quiet = false,
     relative = false,
-    shell = false
+    shell = false,
+    concurrent = true
   },
   logger = console
 ) {
   debugLog('Running all linter scripts')
-
   const gitDir = await resolveGitDir({ cwd })
 
   if (!gitDir) {
@@ -87,9 +88,9 @@ https://github.com/okonet/lint-staged#using-js-functions-to-customize-linter-com
       new Listr(
         await makeCmdTasks({
           commands: getCommands(task, isLintAll),
+          files: task.fileList,
           gitDir,
-          shell,
-          pathsToLint: task.fileList
+          shell
         }),
         {
           // In sub-tasks we don't want to run concurrently
@@ -136,7 +137,7 @@ https://github.com/okonet/lint-staged#using-js-functions-to-customize-linter-com
 
   const runTasks = {
     title: 'Running tasks...',
-    task: () => new Listr(tasks, { ...listrOptions, concurrent: true, exitOnError: false })
+    task: () => new Listr(tasks, { ...listrOptions, concurrent, exitOnError: false })
   }
 
   const updateStash = {

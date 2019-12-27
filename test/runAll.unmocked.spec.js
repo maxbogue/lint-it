@@ -89,6 +89,81 @@ describe('runAll', () => {
     expect(await readFile('test.js')).toEqual(testJsFilePretty)
   })
 
+  it('Should succeed when conflicting tasks sequentially edit a file', async () => {
+    await appendFile('test.js', testJsFileUgly)
+
+    await fs.mkdir(cwd + '/files')
+    await appendFile('file.js', testJsFileUgly, cwd + '/files')
+
+    await execGit(['add', 'test.js'])
+    await execGit(['add', 'files'])
+
+    const success = await gitCommit({
+      config: {
+        'file.js': ['prettier --write', 'git add'],
+        'test.js': files => {
+          // concurrent: false, means this should still work
+          fs.removeSync(`${cwd}/files`)
+          return [`prettier --write ${files.join(' ')}`, `git add ${files.join(' ')}`]
+        }
+      },
+      concurrent: false
+    })
+
+    expect(success).toEqual(true)
+  })
+
+  it('Should fail when conflicting tasks concurrently edit a file', async () => {
+    await appendFile('test.js', testJsFileUgly)
+    await appendFile('test2.js', testJsFileUgly)
+
+    await fs.mkdir(cwd + '/files')
+    await appendFile('file.js', testJsFileUgly, cwd + '/files')
+
+    await execGit(['add', 'test.js'])
+    await execGit(['add', 'test2.js'])
+    await execGit(['add', 'files'])
+
+    const success = await gitCommit({
+      config: {
+        'file.js': ['prettier --write', 'git add'],
+        'test.js': ['prettier --write', 'git add'],
+        'test2.js': files => {
+          // remove `files` so the 1st command should fail
+          fs.removeSync(`${cwd}/files`)
+          return [`prettier --write ${files.join(' ')}`, `git add ${files.join(' ')}`]
+        }
+      },
+      concurrent: true
+    })
+
+    expect(success).toEqual(false)
+  })
+
+  it('Should succeed when conflicting tasks concurrently (max concurrency 1) edit a file', async () => {
+    await appendFile('test.js', testJsFileUgly)
+
+    await fs.mkdir(cwd + '/files')
+    await appendFile('file.js', testJsFileUgly, cwd + '/files')
+
+    await execGit(['add', 'test.js'])
+    await execGit(['add', 'files'])
+
+    const success = await gitCommit({
+      config: {
+        'file.js': ['prettier --write', 'git add'],
+        'test2.js': files => {
+          // concurrency of one should prevent save this operation
+          fs.removeSync(`${cwd}/files`)
+          return [`prettier --write ${files.join(' ')}`, `git add ${files.join(' ')}`]
+        }
+      },
+      concurrent: 1
+    })
+
+    expect(success).toEqual(true)
+  })
+
   it('Should commit entire staged file when no errors and linter modifies file', async () => {
     // Stage ugly file
     await appendFile('test.js', testJsFileUgly)
@@ -172,16 +247,9 @@ describe('runAll', () => {
     expect(await execGit(['show', 'HEAD:test.js'])).toEqual(testJsFilePretty.replace(/\n$/, ''))
 
     // Since edit was not staged, the file is still modified
-    expect(await execGit(['status'])).toMatchInlineSnapshot(`
-"On branch master
-Changes not staged for commit:
-  (use \\"git add <file>...\\" to update what will be committed)
-  (use \\"git checkout -- <file>...\\" to discard changes in working directory)
-
-	modified:   test.js
-
-no changes added to commit (use \\"git add\\" and/or \\"git commit -a\\")"
-`)
+    const status = await execGit(['status'])
+    expect(status).toMatch('modified:   test.js')
+    expect(status).toMatch('no changes added to commit')
     expect(await readFile('test.js')).toEqual(testJsFilePretty + appended)
   })
 
@@ -210,16 +278,9 @@ no changes added to commit (use \\"git add\\" and/or \\"git commit -a\\")"
     expect(await execGit(['show', 'HEAD:test.js'])).toEqual(testJsFilePretty.replace(/\n$/, ''))
 
     // Nothing is staged
-    expect(await execGit(['status'])).toMatchInlineSnapshot(`
-"On branch master
-Changes not staged for commit:
-  (use \\"git add <file>...\\" to update what will be committed)
-  (use \\"git checkout -- <file>...\\" to discard changes in working directory)
-
-	modified:   test.js
-
-no changes added to commit (use \\"git add\\" and/or \\"git commit -a\\")"
-`)
+    const status = await execGit(['status'])
+    expect(status).toMatch('modified:   test.js')
+    expect(status).toMatch('no changes added to commit')
 
     // File is pretty, and has been edited
     expect(await readFile('test.js')).toEqual(testJsFilePretty + appended)
