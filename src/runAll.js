@@ -40,7 +40,7 @@ const MAX_ARG_LENGTH =
 module.exports = async function runAll(
   {
     config,
-    mode,
+    mode = modes.STAGED,
     cwd = process.cwd(),
     debug = false,
     quiet = false,
@@ -78,14 +78,13 @@ https://github.com/maxbogue/lint-it#using-js-functions-to-customize-linter-comma
     )
   }
 
-  const maybeGitAdd = commands => (modes.doGitAdd(mode) ? [...commands, 'git add'] : commands)
-
   const tasks = generateTasks({ config, cwd, gitDir, files, relative }).map(task => ({
     title: `Running tasks for ${task.pattern}`,
     task: async () =>
       new Listr(
         await makeCmdTasks({
-          commands: maybeGitAdd(task.commands),
+          mode,
+          commands: task.commands,
           files: task.fileList,
           gitDir,
           shell

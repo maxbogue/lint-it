@@ -85,6 +85,13 @@ module.exports = function validateConfig(config) {
         if (typeof task !== 'function') return
         const resolved = task(['[filename]'])
         if (typeof resolved === 'string') return
+        if (!Array.isArray(resolved) && typeof resolved === 'object') {
+          if (!resolved.check || !resolved.fix) {
+            errors.push(createError(task, 'Object task must have keys "check" and "fix"', resolved))
+          }
+
+          return
+        }
         if (!Array.isArray(resolved) || resolved.some(subtask => typeof subtask !== 'string')) {
           errors.push(
             createError(

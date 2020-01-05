@@ -8,6 +8,7 @@ jest.unmock('execa')
 import getStagedFiles from '../src/getStagedFiles'
 // eslint-disable-next-line import/first
 import lintStaged from '../src/index'
+import modes from '../src/modes'
 
 jest.mock('../src/getStagedFiles')
 
@@ -49,7 +50,7 @@ describe('lintStaged', () => {
       '*': 'mytask'
     }
     mockCosmiconfigWith({ config })
-    await lintStaged(undefined, logger)
+    await lintStaged({ mode: modes.STAGED }, logger)
     expect(logger.printHistory()).toMatchSnapshot()
   })
 
@@ -59,7 +60,7 @@ describe('lintStaged', () => {
 
     const mockedConsole = makeConsoleMock()
     try {
-      await withMockedConsole(mockedConsole, () => lintStaged())
+      await withMockedConsole(mockedConsole, () => lintStaged({ mode: modes.STAGED }))
     } catch (ignore) {
       expect(mockedConsole.printHistory()).toMatchSnapshot()
     }
@@ -71,7 +72,7 @@ describe('lintStaged', () => {
       '*': 'mytask'
     }
     mockCosmiconfigWith({ config })
-    await lintStaged({ debug: true, quiet: true }, logger)
+    await lintStaged({ mode: modes.STAGED, debug: true, quiet: true }, logger)
     expect(logger.printHistory()).toMatchSnapshot()
   })
 
@@ -81,16 +82,16 @@ describe('lintStaged', () => {
       '*': 'mytask'
     }
     mockCosmiconfigWith({ config })
-    await lintStaged({ quiet: true }, logger)
+    await lintStaged({ mode: modes.STAGED, quiet: true }, logger)
     expect(logger.printHistory()).toMatchSnapshot()
   })
 
   it('should throw when invalid config is provided', async () => {
     const config = {}
     mockCosmiconfigWith({ config })
-    await expect(lintStaged({ quiet: true }, logger)).rejects.toMatchInlineSnapshot(
-      `[Error: Configuration should not be empty!]`
-    )
+    await expect(
+      lintStaged({ mode: modes.STAGED, quiet: true }, logger)
+    ).rejects.toMatchInlineSnapshot(`[Error: Configuration should not be empty!]`)
     expect(logger.printHistory()).toMatchSnapshot()
   })
 
@@ -99,6 +100,7 @@ describe('lintStaged', () => {
     await lintStaged(
       {
         configPath: path.join(__dirname, '__mocks__', 'my-config.json'),
+        mode: modes.STAGED,
         debug: true,
         quiet: true
       },
@@ -112,6 +114,7 @@ describe('lintStaged', () => {
     await lintStaged(
       {
         configPath: path.join(__dirname, '__mocks__', 'advanced-config.js'),
+        mode: modes.STAGED,
         debug: true,
         quiet: true
       },
@@ -123,16 +126,19 @@ describe('lintStaged', () => {
   it('should load an npm config package when specified', async () => {
     expect.assertions(1)
     jest.mock('my-lint-it-config')
-    await lintStaged({ configPath: 'my-lint-it-config', quiet: true, debug: true }, logger)
+    await lintStaged(
+      { configPath: 'my-lint-it-config', mode: modes.STAGED, quiet: true, debug: true },
+      logger
+    )
     expect(logger.printHistory()).toMatchSnapshot()
   })
 
   it('should print helpful error message when config file is not found', async () => {
     expect.assertions(2)
     mockCosmiconfigWith(null)
-    await expect(lintStaged({ quiet: true }, logger)).rejects.toMatchInlineSnapshot(
-      `[Error: Config could not be found]`
-    )
+    await expect(
+      lintStaged({ mode: modes.STAGED, quiet: true }, logger)
+    ).rejects.toMatchInlineSnapshot(`[Error: Config could not be found]`)
     expect(logger.printHistory()).toMatchSnapshot()
   })
 
@@ -149,7 +155,7 @@ describe('lintStaged', () => {
     )
 
     await expect(
-      lintStaged({ configPath: nonExistentConfig, quiet: true }, logger)
+      lintStaged({ configPath: nonExistentConfig, mode: modes.STAGED, quiet: true }, logger)
     ).rejects.toThrowError()
 
     expect(logger.printHistory()).toMatchSnapshot()
@@ -161,7 +167,13 @@ describe('lintStaged', () => {
     }
     mockCosmiconfigWith({ config })
     getStagedFiles.mockImplementationOnce(async () => ['sample.java'])
-    const passed = await lintStaged({ quiet: true }, logger)
+    const passed = await lintStaged(
+      {
+        mode: modes.STAGED,
+        quiet: true
+      },
+      logger
+    )
     expect(logger.printHistory()).toMatchSnapshot()
     expect(passed).toBe(false)
   })

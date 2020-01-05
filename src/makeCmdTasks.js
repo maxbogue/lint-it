@@ -1,8 +1,36 @@
 'use strict'
 
 const resolveTaskFn = require('./resolveTaskFn')
+const modes = require('./modes')
 
 const debug = require('debug')('lint-it:make-cmd-tasks')
+
+const FIX_FLAGS = {
+  eslint: '--fix',
+  jsonlint: '--in-place',
+  prettier: '--write',
+  stylelint: '--fix'
+}
+
+function normalizeCommand(cmd) {
+  if (typeof cmd === 'string') {
+    const fixFlag = FIX_FLAGS[cmd.split(' ')[0]]
+
+    if (fixFlag) {
+      return {
+        check: cmd.replace(` ${fixFlag}`, ''),
+        fix: cmd
+      }
+    }
+
+    return {
+      check: cmd,
+      fix: cmd
+    }
+  }
+
+  return cmd
+}
 
 /**
  * Creates and returns an array of listr tasks which map to the given commands.
@@ -13,7 +41,7 @@ const debug = require('debug')('lint-it:make-cmd-tasks')
  * @param {string} options.gitDir
  * @param {Boolean} shell
  */
-module.exports = async function makeCmdTasks({ commands, files, gitDir, shell }) {
+module.exports = async function makeCmdTasks({ mode, commands, files, gitDir, shell }) {
   debug('Creating listr tasks for commands %o', commands)
   const commandsArray = Array.isArray(commands) ? commands : [commands]
 
@@ -22,6 +50,10 @@ module.exports = async function makeCmdTasks({ commands, files, gitDir, shell })
     const isFn = typeof command === 'function'
     const resolved = isFn ? command(files) : command
     const commands = Array.isArray(resolved) ? resolved : [resolved] // Wrap non-array command as array
+
+    if (modes.shouldGitAdd(mode)) {
+      commands.push('git add')
+    }
 
     // Function command should not be used as the task title as-is
     // because the resolved string it might be very long
@@ -33,7 +65,10 @@ module.exports = async function makeCmdTasks({ commands, files, gitDir, shell })
       mockCommands = Array.isArray(resolved) ? resolved : [resolved]
     }
 
-    commands.forEach((command, i) => {
+    commands.forEach((rawCommand, i) => {
+      const normalized = normalizeCommand(rawCommand)
+      const command = modes.shouldFix(mode) ? normalized.fix : normalized.check
+
       let title = isFn ? '[Function]' : command
       if (isFn && mockCommands[i]) {
         // If command is a function, use the matching mock command as title,

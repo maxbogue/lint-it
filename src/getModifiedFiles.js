@@ -2,7 +2,7 @@
 
 const execGit = require('./execGit')
 
-module.exports = async function getStagedFiles(options) {
+module.exports = async function getModifiedFiles(options) {
   try {
     const lines = await execGit(['diff', '--diff-filter=ACMR', '--name-only', 'HEAD'], options)
     return lines ? lines.split('\n') : []

@@ -15,7 +15,8 @@ module.exports = {
   ALL,
   CI,
   isValid: mode => [MODIFIED, STAGED, ALL, CI].indexOf(mode) >= 0,
-  doGitAdd: mode => [STAGED].indexOf(mode) >= 0,
+  shouldGitAdd: mode => [STAGED].indexOf(mode) >= 0,
+  shouldFix: mode => [MODIFIED, STAGED, ALL].indexOf(mode) >= 0,
   getFiles: (mode, options) => {
     switch (mode) {
       case MODIFIED:
